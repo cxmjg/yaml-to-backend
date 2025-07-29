@@ -1,0 +1,31 @@
+entidad: Categoria
+tabla: categorias
+campos:
+  id:
+    tipo: integer
+    pk: true
+  nombre:
+    tipo: string
+    max: 100
+    unique: true
+  descripcion:
+    tipo: string
+    max: 500
+  color:
+    tipo: string
+    max: 7
+    default: "#000000"
+  activa:
+    tipo: boolean
+    default: true
+  orden:
+    tipo: integer
+    default: 0
+  deleted_at:
+    tipo: datetime
+permisos:
+  admin: [r, w, d]
+  usuario:
+    r: [r]
+    w: []
+    d: [] 

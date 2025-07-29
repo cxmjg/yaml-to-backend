@@ -1,0 +1,35 @@
+entidad: Usuario
+tabla: usuarios
+descripcion: "Gestión de usuarios del sistema"
+campos:
+  id:
+    tipo: integer
+    pk: true
+    descripcion: "Identificador único del usuario"
+  username:
+    tipo: string
+    max: 50
+    descripcion: "Nombre de usuario único"
+    ejemplo: "usuario123"
+  password:
+    tipo: string
+    max: 200
+    descripcion: "Contraseña del usuario"
+    ejemplo: "password123"
+  rol:
+    tipo: string
+    max: 50
+    descripcion: "Rol del usuario en el sistema"
+    ejemplo: "usuario"
+    enum: ["admin", "usuario"]
+  deleted_at:
+    tipo: datetime
+    descripcion: "Fecha de eliminación lógica (soft delete)"
+permisos:
+  admin: [r, w, d]
+  usuario:
+    r: [yo]
+    w: [yo]
+    d: [yo]
+    yo:
+      campo_usuario: id 

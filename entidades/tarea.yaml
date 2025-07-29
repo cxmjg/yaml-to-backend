@@ -1,0 +1,36 @@
+entidad: Tarea
+tabla: tareas
+descripcion: "Gestión de tareas del sistema"
+campos:
+  id:
+    tipo: integer
+    pk: true
+    descripcion: "Identificador único de la tarea"
+  titulo:
+    tipo: string
+    max: 100
+    descripcion: "Título de la tarea"
+    ejemplo: "Completar documentación"
+  descripcion:
+    tipo: text
+    descripcion: "Descripción detallada de la tarea"
+    ejemplo: "Necesito completar la documentación del proyecto IPAS"
+  usuario_id:
+    tipo: integer
+    fk: usuarios.id
+    descripcion: "ID del usuario propietario de la tarea"
+  completada:
+    tipo: boolean
+    descripcion: "Estado de completado de la tarea"
+    ejemplo: false
+  fecha_creacion:
+    tipo: datetime
+    descripcion: "Fecha de creación de la tarea"
+  deleted_at:
+    tipo: datetime
+    descripcion: "Fecha de eliminación lógica (soft delete)"
+permisos:
+  admin: [r, w, d]
+  usuario:
+    yo:
+      campo_usuario: usuario_id 
