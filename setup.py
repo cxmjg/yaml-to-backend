@@ -45,7 +45,7 @@ setup(
         "bcrypt>=4.0.0",
         "python-jose[cryptography]>=3.3.0",
         "python-multipart>=0.0.6",
-        "aiomysql>=0.2.0",
+        "asyncmy>=0.2.8",
         "python-dotenv>=1.0.0",
         "inflection>=0.5.0",
         "passlib[bcrypt]>=1.7.0",
