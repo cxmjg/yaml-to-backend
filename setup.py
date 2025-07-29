@@ -11,11 +11,6 @@ def read_readme():
     with open("README.md", "r", encoding="utf-8") as fh:
         return fh.read()
 
-# Leer requirements.txt para las dependencias
-def read_requirements():
-    with open("requirements.txt", "r", encoding="utf-8") as fh:
-        return [line.strip() for line in fh if line.strip() and not line.startswith("#")]
-
 setup(
     name="yaml-to-backend",
     version="0.1.0",
@@ -40,7 +35,21 @@ setup(
         "Topic :: Database",
     ],
     python_requires=">=3.10",
-    install_requires=read_requirements(),
+    install_requires=[
+        "fastapi>=0.104.0",
+        "uvicorn[standard]>=0.24.0",
+        "sqlalchemy>=2.0.0",
+        "sqlmodel>=0.0.8",
+        "pydantic>=2.0.0",
+        "pyyaml>=6.0",
+        "bcrypt>=4.0.0",
+        "python-jose[cryptography]>=3.3.0",
+        "python-multipart>=0.0.6",
+        "aiomysql>=0.2.0",
+        "python-dotenv>=1.0.0",
+        "inflection>=0.5.0",
+        "passlib[bcrypt]>=1.7.0",
+    ],
     extras_require={
         "dev": [
             "pytest>=7.0.0",
