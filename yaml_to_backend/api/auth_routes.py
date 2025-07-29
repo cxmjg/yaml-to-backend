@@ -8,7 +8,7 @@ from ..db.models import Usuario
 from ..db.connection import get_db_session, get_db_manager
 from sqlalchemy.ext.asyncio import AsyncSession
 from datetime import datetime, timedelta
-from ..config import JWT_SECRET_KEY, JWT_ALGORITHM, JWT_ACCESS_TOKEN_EXPIRE_MINUTES
+from ..config import JWT_SECRET_KEY, JWT_ALGORITHM, JWT_ACCESS_TOKEN_EXPIRE_MINUTES, AUTH
 
 logger = logging.getLogger(__name__)
 
@@ -46,13 +46,17 @@ async def login(login_data: LoginRequest, session: AsyncSession = Depends(get_db
                 headers={"WWW-Authenticate": "Bearer"},
             )
             
+        # Obtener la columna de usuario desde la configuración
+        user_column = AUTH['columna_usuario']
+        user_value = getattr(user, user_column)
+            
         # Crear token de acceso
         access_token_expires = timedelta(minutes=auth_manager.access_token_expire_minutes)
         access_token = auth_manager.create_access_token(
-            data={"sub": user.username}, expires_delta=access_token_expires
+            data={"sub": user_value}, expires_delta=access_token_expires
         )
         
-        logger.info(f"Login exitoso para usuario: {user.username}")
+        logger.info(f"Login exitoso para usuario: {user_value}")
         
         return {"access_token": access_token, "token_type": "bearer"}
         
@@ -85,8 +89,12 @@ async def get_current_user_with_session(
 @router.get("/me")
 async def get_current_user_info(current_user: Usuario = Depends(get_current_user_with_session)):
     """Obtiene información del usuario actual"""
+    # Obtener la columna de usuario desde la configuración
+    user_column = AUTH['columna_usuario']
+    user_value = getattr(current_user, user_column)
+    
     return {
         "id": current_user.id,
-        "username": current_user.username,
+        "username": user_value,  # Mantener 'username' en la respuesta para compatibilidad
         "rol": current_user.rol
     } 

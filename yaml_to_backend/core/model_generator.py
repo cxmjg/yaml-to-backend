@@ -170,7 +170,12 @@ class ModelGenerator:
         return field_line
     
     def generate_pydantic_models_code(self, entity_name: str, entity_data: Dict[str, Any]) -> str:
-        """Genera código Python para modelos Pydantic con documentación Swagger"""
+        """Genera código Python para modelos Pydantic de una entidad"""
+        from .config import AUTH
+        
+        # Obtener configuración de borrado lógico
+        delete_column = AUTH['columna_borrado']
+        delete_type = AUTH['borrado_logico']
         
         # Generar documentación Swagger
         swagger_docs = self.generate_swagger_documentation(entity_name, entity_data)
@@ -184,7 +189,7 @@ class ModelGenerator:
         for field_name, field_config in entity_data['campos'].items():
             if not field_config.get('pk'):
                 # Excluir campos que se generan automáticamente
-                if field_name not in ['deleted_at', 'fecha_creacion', 'fecha_actualizacion']:
+                if field_name not in [delete_column, 'fecha_creacion', 'fecha_actualizacion']:
                     field_code = self._get_pydantic_field_code(field_name, field_config, required=True)
                     code_lines.append(f"    {field_code}")
         
@@ -198,7 +203,7 @@ class ModelGenerator:
         for field_name, field_config in entity_data['campos'].items():
             if (not field_config.get('pk') and 
                 not field_config.get('fk') and 
-                field_name not in ['deleted_at', 'fecha_creacion', 'fecha_actualizacion']):
+                field_name not in [delete_column, 'fecha_creacion', 'fecha_actualizacion']):
                 # Para password, hacer opcional en Update
                 if field_name == 'password':
                     code_lines.append(f"    {field_name}: Optional[str]")
@@ -221,6 +226,11 @@ class ModelGenerator:
     
     def _get_pydantic_field_code(self, field_name: str, field_config: Dict[str, Any], required: bool = True) -> str:
         """Genera código Python para un campo Pydantic"""
+        from .config import AUTH
+        
+        # Obtener configuración de borrado lógico
+        delete_column = AUTH['columna_borrado']
+        
         field_type = field_config.get('tipo', 'string').lower()
         
         # Mapeo de tipos
@@ -241,7 +251,7 @@ class ModelGenerator:
         python_type = type_mapping.get(field_type, 'str')
         
         # Campos automáticos siempre son opcionales
-        if field_name in ['deleted_at', 'fecha_creacion', 'fecha_actualizacion']:
+        if field_name in [delete_column, 'fecha_creacion', 'fecha_actualizacion']:
             python_type = f"Optional[{python_type}]"
         elif not required:
             python_type = f"Optional[{python_type}]"

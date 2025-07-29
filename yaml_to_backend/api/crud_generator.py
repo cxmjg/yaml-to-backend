@@ -73,6 +73,8 @@ class CRUDGenerator:
         ):
             """Lista todas las entidades con paginación"""
             try:
+                from ..config import AUTH
+                
                 # Verificar permisos de lectura
                 if not self.auth_manager.has_permission(current_user, permissions, 'r'):
                     raise HTTPException(
@@ -82,6 +84,18 @@ class CRUDGenerator:
                 
                 # Construir query base
                 query = select(model_class)
+                
+                # Aplicar filtro de borrado lógico
+                delete_column = AUTH['columna_borrado']
+                delete_type = AUTH['borrado_logico']
+                
+                if hasattr(model_class, delete_column):
+                    if delete_type == 'boolean':
+                        # Para boolean, mostrar solo los que son True (no eliminados)
+                        query = query.where(getattr(model_class, delete_column) == True)
+                    else:
+                        # Para timestamp/datetime, mostrar solo los que son None (no eliminados)
+                        query = query.where(getattr(model_class, delete_column) == None)
                 
                 # Aplicar filtros según permisos
                 user_filter = self.auth_manager.get_user_filter(current_user, permissions)
@@ -151,6 +165,8 @@ class CRUDGenerator:
             ):
                 """Obtiene las entidades del usuario actual"""
                 try:
+                    from ..config import AUTH
+                    
                     # Verificar permisos 'yo'
                     if not self.auth_manager.has_permission(current_user, permissions, 'yo'):
                         raise HTTPException(
@@ -168,6 +184,20 @@ class CRUDGenerator:
                     
                     # Construir query con filtros
                     query = select(model_class)
+                    
+                    # Aplicar filtro de borrado lógico
+                    delete_column = AUTH['columna_borrado']
+                    delete_type = AUTH['borrado_logico']
+                    
+                    if hasattr(model_class, delete_column):
+                        if delete_type == 'boolean':
+                            # Para boolean, mostrar solo los que son True (no eliminados)
+                            query = query.where(getattr(model_class, delete_column) == True)
+                        else:
+                            # Para timestamp/datetime, mostrar solo los que son None (no eliminados)
+                            query = query.where(getattr(model_class, delete_column) == None)
+                    
+                    # Aplicar filtros de usuario
                     for key, value in user_filter.items():
                         query = query.where(getattr(model_class, key) == value)
                     
@@ -199,6 +229,8 @@ class CRUDGenerator:
         ):
             """Obtiene una entidad por ID"""
             try:
+                from ..config import AUTH
+                
                 # Verificar permisos de lectura
                 if not self.auth_manager.has_permission(current_user, permissions, 'r'):
                     raise HTTPException(
@@ -208,6 +240,19 @@ class CRUDGenerator:
                 
                 # Buscar la entidad
                 query = select(model_class).where(model_class.id == entity_id)
+                
+                # Aplicar filtro de borrado lógico
+                delete_column = AUTH['columna_borrado']
+                delete_type = AUTH['borrado_logico']
+                
+                if hasattr(model_class, delete_column):
+                    if delete_type == 'boolean':
+                        # Para boolean, mostrar solo los que son True (no eliminados)
+                        query = query.where(getattr(model_class, delete_column) == True)
+                    else:
+                        # Para timestamp/datetime, mostrar solo los que son None (no eliminados)
+                        query = query.where(getattr(model_class, delete_column) == None)
+                
                 result = await session.execute(query)
                 entity = result.scalar_one_or_none()
                 
@@ -308,6 +353,8 @@ class CRUDGenerator:
         ):
             """Elimina una entidad por ID (soft delete)"""
             try:
+                from ..config import AUTH
+                
                 # Verificar permisos de eliminación
                 if not self.auth_manager.has_permission(current_user, permissions, 'd'):
                     raise HTTPException(
@@ -337,8 +384,20 @@ class CRUDGenerator:
                         )
                 
                 # Eliminar la entidad (borrado lógico)
-                if hasattr(entity, 'deleted_at'):
-                    entity.deleted_at = datetime.utcnow()
+                delete_column = AUTH['columna_borrado']
+                delete_type = AUTH['borrado_logico']
+                
+                if hasattr(entity, delete_column):
+                    if delete_type == 'timestamp' or delete_type == 'datetime':
+                        from datetime import datetime
+                        setattr(entity, delete_column, datetime.utcnow())
+                    elif delete_type == 'boolean':
+                        setattr(entity, delete_column, False)
+                    else:
+                        # Por defecto, usar timestamp
+                        from datetime import datetime
+                        setattr(entity, delete_column, datetime.utcnow())
+                    
                     session.add(entity)
                 else:
                     await session.delete(entity)

@@ -129,31 +129,43 @@ class BackendGenerator:
         """Crea usuarios iniciales para modo instalación"""
         try:
             from .db.models import Usuario
+            from .config import AUTH, INITIAL_USERS
             from sqlalchemy import select
+            
+            # Obtener la columna de usuario desde la configuración
+            user_column = AUTH['columna_usuario']
+            password_column = AUTH['columna_password']
             
             async with self.db_manager.get_session() as session:
                 for user_data in INITIAL_USERS:
-                    # Verificar si el usuario ya existe
+                    # Verificar si el usuario ya existe usando la columna configurada
                     result = await session.execute(
-                        select(Usuario).where(Usuario.username == user_data['username'])
+                        select(Usuario).where(getattr(Usuario, user_column) == user_data[user_column])
                     )
                     existing_user = result.scalar_one_or_none()
                     
                     if not existing_user:
                         # Crear hash de la contraseña
-                        hashed_password = self.auth_manager.get_password_hash(user_data['password'])
+                        hashed_password = self.auth_manager.get_password_hash(user_data[password_column])
                         
-                        # Crear usuario
-                        new_user = Usuario(
-                            username=user_data['username'],
-                            password=hashed_password,
-                            rol=user_data['rol']
-                        )
+                        # Crear usuario usando las columnas configuradas
+                        user_kwargs = {
+                            user_column: user_data[user_column],
+                            password_column: hashed_password,
+                            'rol': user_data['rol']
+                        }
+                        
+                        # Agregar campos adicionales si existen
+                        for key, value in user_data.items():
+                            if key not in [user_column, password_column, 'rol']:
+                                user_kwargs[key] = value
+                        
+                        new_user = Usuario(**user_kwargs)
                         session.add(new_user)
                         await session.commit()
-                        logger.info(f"Usuario inicial creado: {user_data['username']}")
+                        logger.info(f"Usuario inicial creado: {user_data[user_column]}")
                     else:
-                        logger.info(f"Usuario ya existe: {user_data['username']}")
+                        logger.info(f"Usuario ya existe: {user_data[user_column]}")
                         
         except Exception as e:
             logger.error(f"Error creando usuarios iniciales: {e}")

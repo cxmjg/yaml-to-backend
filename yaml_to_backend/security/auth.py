@@ -54,8 +54,13 @@ class AuthManager:
         """Autentica un usuario con username y password"""
         try:
             from sqlalchemy import select
+            from .config import AUTH
+            
+            # Obtener la columna de usuario desde la configuración
+            user_column = AUTH['columna_usuario']
+            
             result = await session.execute(
-                select(Usuario).where(Usuario.username == username)
+                select(Usuario).where(getattr(Usuario, user_column) == username)
             )
             user = result.scalar_one_or_none()
             
@@ -94,8 +99,13 @@ class AuthManager:
             
         if session:
             from sqlalchemy import select
+            from .config import AUTH
+            
+            # Obtener la columna de usuario desde la configuración
+            user_column = AUTH['columna_usuario']
+            
             result = await session.execute(
-                select(Usuario).where(Usuario.username == username)
+                select(Usuario).where(getattr(Usuario, user_column) == username)
             )
             user = result.scalar_one_or_none()
         else:
