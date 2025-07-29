@@ -68,4 +68,8 @@ where = ["."]
 include = ["yaml_to_backend*"]
 
 [tool.setuptools.package-data]
-yaml_to_backend = ["*.yaml", "*.yml"] 
+yaml_to_backend = ["*.yaml", "*.yml"]
+
+# Trusted Publishers configuration
+[tool.pypi-publisher]
+repository = "https://pypi.org/legacy/" 
