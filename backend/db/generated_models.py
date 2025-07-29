@@ -6,105 +6,179 @@ from pydantic import BaseModel
 from datetime import datetime
 
 # Importar modelos existentes
-from backend.db.models import Usuario, Tarea, Categoria, Articulo
+from yaml_to_backend.db.models import Usuarios, SistemasOperativos, Roles, Perfiles, Imagenes, Contenedores, Aplicaciones, AplicacionImagen
 
 
-class UsuarioCreate(BaseModel):
-    """Modelo para crear Usuario - Gestión de usuarios del sistema"""
-    username: str
+class UsuariosCreate(BaseModel):
+    """Modelo para crear Usuarios - Gestión de usuarios del sistema"""
+    nombre: str
     password: str
+    creado: datetime
+    acceso: datetime
+    habilitado: bool
+    rol: int
+
+class UsuariosUpdate(BaseModel):
+    """Modelo para actualizar Usuarios"""
+    nombre: Optional[str]
+    password: Optional[str]
+    creado: Optional[datetime]
+    acceso: Optional[datetime]
+    habilitado: Optional[bool]
+
+class UsuariosResponse(BaseModel):
+    """Modelo para respuesta de Usuarios"""
+    id: int
+    nombre: str
+    password: str
+    creado: datetime
+    acceso: datetime
+    habilitado: bool
+    rol: int
+
+class SistemasOperativosCreate(BaseModel):
+    """Modelo para crear SistemasOperativos - Gestión de sistemas operativos disponibles"""
+    nombre: str
+    logo: str
+
+class SistemasOperativosUpdate(BaseModel):
+    """Modelo para actualizar SistemasOperativos"""
+    nombre: Optional[str]
+    logo: Optional[str]
+
+class SistemasOperativosResponse(BaseModel):
+    """Modelo para respuesta de SistemasOperativos"""
+    id: int
+    nombre: str
+    logo: str
+
+class RolesCreate(BaseModel):
+    """Modelo para crear Roles - Gestión de roles de usuario"""
     rol: str
 
-class UsuarioUpdate(BaseModel):
-    """Modelo para actualizar Usuario"""
-    username: Optional[str]
-    password: Optional[str]
+class RolesUpdate(BaseModel):
+    """Modelo para actualizar Roles"""
     rol: Optional[str]
 
-class UsuarioResponse(BaseModel):
-    """Modelo para respuesta de Usuario"""
+class RolesResponse(BaseModel):
+    """Modelo para respuesta de Roles"""
     id: int
-    username: str
-    password: str
     rol: str
-    deleted_at: Optional[datetime]
 
-class TareaCreate(BaseModel):
-    """Modelo para crear Tarea - Gestión de tareas del sistema"""
-    titulo: str
-    descripcion: str
-    usuario_id: int
-    completada: bool
-
-class TareaUpdate(BaseModel):
-    """Modelo para actualizar Tarea"""
-    titulo: Optional[str]
-    descripcion: Optional[str]
-    completada: Optional[bool]
-
-class TareaResponse(BaseModel):
-    """Modelo para respuesta de Tarea"""
-    id: int
-    titulo: str
-    descripcion: str
-    usuario_id: int
-    completada: bool
-    fecha_creacion: Optional[datetime]
-    deleted_at: Optional[datetime]
-
-class CategoriaCreate(BaseModel):
-    """Modelo para crear Categoria - Gestión de categoria"""
+class PerfilesCreate(BaseModel):
+    """Modelo para crear Perfiles - Gestión de perfiles de usuario"""
     nombre: str
-    descripcion: str
-    color: str
-    activa: bool
-    orden: int
+    apellido: str
+    email: str
+    imagen: str
+    usuario: int
 
-class CategoriaUpdate(BaseModel):
-    """Modelo para actualizar Categoria"""
+class PerfilesUpdate(BaseModel):
+    """Modelo para actualizar Perfiles"""
     nombre: Optional[str]
-    descripcion: Optional[str]
-    color: Optional[str]
-    activa: Optional[bool]
-    orden: Optional[int]
+    apellido: Optional[str]
+    email: Optional[str]
+    imagen: Optional[str]
 
-class CategoriaResponse(BaseModel):
-    """Modelo para respuesta de Categoria"""
+class PerfilesResponse(BaseModel):
+    """Modelo para respuesta de Perfiles"""
     id: int
     nombre: str
-    descripcion: str
-    color: str
-    activa: bool
-    orden: int
-    deleted_at: Optional[datetime]
+    apellido: str
+    email: str
+    imagen: str
+    usuario: int
 
-class ArticuloCreate(BaseModel):
-    """Modelo para crear Articulo - Gestión de articulos"""
-    titulo: str
-    contenido: str
-    autor_id: int
-    publicado: bool
-    fecha_publicacion: datetime
-    tags: str
+class ImagenesCreate(BaseModel):
+    """Modelo para crear Imagenes - Gestión de imágenes de contenedores"""
+    ubicacion: str
+    nombre: str
+    comandos: str
+    logo: str
+    sistemaOperativo: int
 
-class ArticuloUpdate(BaseModel):
-    """Modelo para actualizar Articulo"""
-    titulo: Optional[str]
-    contenido: Optional[str]
-    publicado: Optional[bool]
-    fecha_publicacion: Optional[datetime]
-    tags: Optional[str]
+class ImagenesUpdate(BaseModel):
+    """Modelo para actualizar Imagenes"""
+    ubicacion: Optional[str]
+    nombre: Optional[str]
+    comandos: Optional[str]
+    logo: Optional[str]
 
-class ArticuloResponse(BaseModel):
-    """Modelo para respuesta de Articulo"""
+class ImagenesResponse(BaseModel):
+    """Modelo para respuesta de Imagenes"""
     id: int
-    titulo: str
-    contenido: str
-    autor_id: int
-    publicado: bool
-    fecha_publicacion: datetime
-    tags: str
-    deleted_at: Optional[datetime]
+    ubicacion: str
+    nombre: str
+    comandos: str
+    logo: str
+    sistemaOperativo: int
+
+class ContenedoresCreate(BaseModel):
+    """Modelo para crear Contenedores - Gestión de contenedores de usuarios"""
+    nombre: str
+    http: int
+    https: int
+    puertos: str
+    redes: str
+    variables: str
+    volumenes: str
+    imagen: int
+    usuario: int
+
+class ContenedoresUpdate(BaseModel):
+    """Modelo para actualizar Contenedores"""
+    nombre: Optional[str]
+    http: Optional[int]
+    https: Optional[int]
+    puertos: Optional[str]
+    redes: Optional[str]
+    variables: Optional[str]
+    volumenes: Optional[str]
+
+class ContenedoresResponse(BaseModel):
+    """Modelo para respuesta de Contenedores"""
+    id: int
+    nombre: str
+    http: int
+    https: int
+    puertos: str
+    redes: str
+    variables: str
+    volumenes: str
+    imagen: int
+    usuario: int
+
+class AplicacionesCreate(BaseModel):
+    """Modelo para crear Aplicaciones - Gestión de aplicaciones disponibles"""
+    nombre: str
+    comando: str
+    sistemaOperativo: int
+
+class AplicacionesUpdate(BaseModel):
+    """Modelo para actualizar Aplicaciones"""
+    nombre: Optional[str]
+    comando: Optional[str]
+
+class AplicacionesResponse(BaseModel):
+    """Modelo para respuesta de Aplicaciones"""
+    id: int
+    nombre: str
+    comando: str
+    sistemaOperativo: int
+
+class AplicacionImagenCreate(BaseModel):
+    """Modelo para crear AplicacionImagen - Relación entre aplicaciones e imágenes"""
+    aplicacion: int
+    imagen: int
+
+class AplicacionImagenUpdate(BaseModel):
+    """Modelo para actualizar AplicacionImagen"""
+
+class AplicacionImagenResponse(BaseModel):
+    """Modelo para respuesta de AplicacionImagen"""
+    id: int
+    aplicacion: int
+    imagen: int
 
 
 
@@ -115,25 +189,45 @@ class ArticuloResponse(BaseModel):
 # Estructura: {entidad: {accion: clase_modelo}}
 
 PYDANTIC_MODELS: Dict[str, Dict[str, Type[BaseModel]]] = {
-    "Usuario": {
-        "create": UsuarioCreate,
-        "update": UsuarioUpdate,
-        "response": UsuarioResponse
+    "Usuarios": {
+        "create": UsuariosCreate,
+        "update": UsuariosUpdate,
+        "response": UsuariosResponse
     },
-    "Tarea": {
-        "create": TareaCreate,
-        "update": TareaUpdate,
-        "response": TareaResponse
+    "SistemasOperativos": {
+        "create": SistemasOperativosCreate,
+        "update": SistemasOperativosUpdate,
+        "response": SistemasOperativosResponse
     },
-    "Categoria": {
-        "create": CategoriaCreate,
-        "update": CategoriaUpdate,
-        "response": CategoriaResponse
+    "Roles": {
+        "create": RolesCreate,
+        "update": RolesUpdate,
+        "response": RolesResponse
     },
-    "Articulo": {
-        "create": ArticuloCreate,
-        "update": ArticuloUpdate,
-        "response": ArticuloResponse
+    "Perfiles": {
+        "create": PerfilesCreate,
+        "update": PerfilesUpdate,
+        "response": PerfilesResponse
+    },
+    "Imagenes": {
+        "create": ImagenesCreate,
+        "update": ImagenesUpdate,
+        "response": ImagenesResponse
+    },
+    "Contenedores": {
+        "create": ContenedoresCreate,
+        "update": ContenedoresUpdate,
+        "response": ContenedoresResponse
+    },
+    "Aplicaciones": {
+        "create": AplicacionesCreate,
+        "update": AplicacionesUpdate,
+        "response": AplicacionesResponse
+    },
+    "AplicacionImagen": {
+        "create": AplicacionImagenCreate,
+        "update": AplicacionImagenUpdate,
+        "response": AplicacionImagenResponse
     },
 }
 
@@ -185,18 +279,34 @@ def validate_entity_action(entity_name: str, action: str) -> bool:
 # =============================================================================
 
 # Acceso directo a modelos específicos
-UsuarioCreateModel = PYDANTIC_MODELS["Usuario"]["create"]
-UsuarioUpdateModel = PYDANTIC_MODELS["Usuario"]["update"]
-UsuarioResponseModel = PYDANTIC_MODELS["Usuario"]["response"]
+UsuariosCreateModel = PYDANTIC_MODELS["Usuarios"]["create"]
+UsuariosUpdateModel = PYDANTIC_MODELS["Usuarios"]["update"]
+UsuariosResponseModel = PYDANTIC_MODELS["Usuarios"]["response"]
 
-TareaCreateModel = PYDANTIC_MODELS["Tarea"]["create"]
-TareaUpdateModel = PYDANTIC_MODELS["Tarea"]["update"]
-TareaResponseModel = PYDANTIC_MODELS["Tarea"]["response"]
+SistemasOperativosCreateModel = PYDANTIC_MODELS["SistemasOperativos"]["create"]
+SistemasOperativosUpdateModel = PYDANTIC_MODELS["SistemasOperativos"]["update"]
+SistemasOperativosResponseModel = PYDANTIC_MODELS["SistemasOperativos"]["response"]
 
-CategoriaCreateModel = PYDANTIC_MODELS["Categoria"]["create"]
-CategoriaUpdateModel = PYDANTIC_MODELS["Categoria"]["update"]
-CategoriaResponseModel = PYDANTIC_MODELS["Categoria"]["response"]
+RolesCreateModel = PYDANTIC_MODELS["Roles"]["create"]
+RolesUpdateModel = PYDANTIC_MODELS["Roles"]["update"]
+RolesResponseModel = PYDANTIC_MODELS["Roles"]["response"]
 
-ArticuloCreateModel = PYDANTIC_MODELS["Articulo"]["create"]
-ArticuloUpdateModel = PYDANTIC_MODELS["Articulo"]["update"]
-ArticuloResponseModel = PYDANTIC_MODELS["Articulo"]["response"]
+PerfilesCreateModel = PYDANTIC_MODELS["Perfiles"]["create"]
+PerfilesUpdateModel = PYDANTIC_MODELS["Perfiles"]["update"]
+PerfilesResponseModel = PYDANTIC_MODELS["Perfiles"]["response"]
+
+ImagenesCreateModel = PYDANTIC_MODELS["Imagenes"]["create"]
+ImagenesUpdateModel = PYDANTIC_MODELS["Imagenes"]["update"]
+ImagenesResponseModel = PYDANTIC_MODELS["Imagenes"]["response"]
+
+ContenedoresCreateModel = PYDANTIC_MODELS["Contenedores"]["create"]
+ContenedoresUpdateModel = PYDANTIC_MODELS["Contenedores"]["update"]
+ContenedoresResponseModel = PYDANTIC_MODELS["Contenedores"]["response"]
+
+AplicacionesCreateModel = PYDANTIC_MODELS["Aplicaciones"]["create"]
+AplicacionesUpdateModel = PYDANTIC_MODELS["Aplicaciones"]["update"]
+AplicacionesResponseModel = PYDANTIC_MODELS["Aplicaciones"]["response"]
+
+AplicacionImagenCreateModel = PYDANTIC_MODELS["AplicacionImagen"]["create"]
+AplicacionImagenUpdateModel = PYDANTIC_MODELS["AplicacionImagen"]["update"]
+AplicacionImagenResponseModel = PYDANTIC_MODELS["AplicacionImagen"]["response"]

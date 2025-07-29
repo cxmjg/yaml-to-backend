@@ -266,11 +266,10 @@ class ModelGenerator:
             "# Importar modelos existentes",
         ]
         
-        # Generar imports dinámicos basados en las entidades
-        entity_names = list(entities.keys())
-        if entity_names:
-            imports_line = f"from yaml_to_backend.db.models import {', '.join(entity_names)}"
-            file_content.append(imports_line)
+        # Los modelos SQLModel están en models.py
+        # Los modelos Pydantic están definidos aquí
+        file_content.append("# Los modelos SQLModel están en models.py")
+        file_content.append("# Los modelos Pydantic están definidos aquí")
         
         file_content.extend([
             "",

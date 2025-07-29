@@ -10,7 +10,7 @@ y ejecutar la aplicación de forma simple.
 # IMPORTS
 # =============================================================================
 
-from yaml_to_backend import update_config, run_backend
+from yaml_to_backend import update_config, get_run_backend
 
 # =============================================================================
 # CONFIGURACIÓN PERSONALIZADA
@@ -47,4 +47,5 @@ update_config(
 if __name__ == "__main__":
 
     # Ejecutar el backend
+    run_backend = get_run_backend()
     run_backend() 
