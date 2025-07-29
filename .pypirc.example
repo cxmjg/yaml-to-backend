@@ -1,0 +1,23 @@
+[distutils]
+index-servers =
+    pypi
+    testpypi
+
+[pypi]
+repository = https://upload.pypi.org/legacy/
+username = __token__
+password = YOUR_PYPI_TOKEN_HERE
+
+[testpypi]
+repository = https://test.pypi.org/legacy/
+username = __token__
+password = YOUR_TEST_PYPI_TOKEN_HERE
+
+# INSTRUCCIONES:
+# 1. Copia este archivo como .pypirc
+# 2. Reemplaza YOUR_PYPI_TOKEN_HERE con tu token de PyPI
+# 3. Reemplaza YOUR_TEST_PYPI_TOKEN_HERE con tu token de TestPyPI
+# 4. Los tokens se generan en: https://pypi.org/manage/account/token/
+# 5. Para TestPyPI: https://test.pypi.org/manage/account/token/
+# 
+# NOTA: Este archivo NO se sube al repositorio por seguridad 

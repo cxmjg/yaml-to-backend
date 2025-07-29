@@ -46,6 +46,22 @@ yaml-to-backend --entities ./mis_entidades/
 yaml-to-backend --debug
 ```
 
+## 🔐 Publicación Automática
+
+Este proyecto usa **Trusted Publishers** de PyPI para publicación automática:
+
+- ✅ **Sin tokens**: No necesitas manejar credenciales
+- ✅ **Automático**: Se publica con cada release de GitHub
+- ✅ **Seguro**: Solo se publica desde el repositorio oficial
+
+### Para contribuir:
+
+1. **Fork** el repositorio
+2. **Desarrolla** tus cambios
+3. **Crea un Pull Request**
+4. **Los maintainers** crearán un release
+5. **Automáticamente** se publicará en PyPI
+
 ## 🚀 Características
 
 - **Generación automática**: Crea backends completos desde archivos YAML
