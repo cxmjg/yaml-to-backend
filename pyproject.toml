@@ -58,10 +58,10 @@ dev = [
 yaml-to-backend = "yaml_to_backend.cli:main"
 
 [project.urls]
-Homepage = "https://github.com/ipas/yaml-to-backend"
-Documentation = "https://github.com/ipas/yaml-to-backend#readme"
-Repository = "https://github.com/ipas/yaml-to-backend"
-"Bug Tracker" = "https://github.com/ipas/yaml-to-backend/issues"
+Homepage = "https://github.com/cxmjg/yaml-to-backend"
+Documentation = "https://github.com/cxmjg/yaml-to-backend#readme"
+Repository = "https://github.com/cxmjg/yaml-to-backend"
+"Bug Tracker" = "https://github.com/cxmjg/yaml-to-backend/issues"
 
 [tool.setuptools.packages.find]
 where = ["."]

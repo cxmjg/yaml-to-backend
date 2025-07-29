@@ -24,7 +24,7 @@ setup(
     description="Generador de Backends a partir de YAML",
     long_description=read_readme(),
     long_description_content_type="text/markdown",
-    url="https://github.com/ipas/yaml-to-backend",
+    url="https://github.com/cxmjg/yaml-to-backend",
     packages=find_packages(),
     classifiers=[
         "Development Status :: 4 - Beta",
@@ -61,8 +61,8 @@ setup(
     },
     keywords="yaml, backend, generator, fastapi, sqlalchemy, crud",
     project_urls={
-        "Bug Reports": "https://github.com/ipas/yaml-to-backend/issues",
-        "Source": "https://github.com/ipas/yaml-to-backend",
-        "Documentation": "https://github.com/ipas/yaml-to-backend#readme",
+        "Bug Reports": "https://github.com/cxmjg/yaml-to-backend/issues",
+        "Source": "https://github.com/cxmjg/yaml-to-backend",
+        "Documentation": "https://github.com/cxmjg/yaml-to-backend#readme",
     },
 ) 
