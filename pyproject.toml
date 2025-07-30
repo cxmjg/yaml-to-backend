@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "yaml-to-backend"
-version = "0.1.8"
+version = "0.1.9"
 description = "Generador de Backends a partir de YAML"
 readme = "README.md"
 license = {text = "MIT"}
