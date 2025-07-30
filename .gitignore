@@ -206,4 +206,7 @@ Desktop.ini
 *~
 
 # Project specific
-.pypirc 
+.pypirc
+
+# Tests directory (ignored for production releases)
+tests/ 
