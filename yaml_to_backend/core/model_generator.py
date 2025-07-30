@@ -171,7 +171,7 @@ class ModelGenerator:
     
     def generate_pydantic_models_code(self, entity_name: str, entity_data: Dict[str, Any]) -> str:
         """Genera código Python para modelos Pydantic de una entidad"""
-        from .config import AUTH
+        from ..config import AUTH
         
         # Obtener configuración de borrado lógico
         delete_column = AUTH['columna_borrado']
@@ -226,7 +226,7 @@ class ModelGenerator:
     
     def _get_pydantic_field_code(self, field_name: str, field_config: Dict[str, Any], required: bool = True) -> str:
         """Genera código Python para un campo Pydantic"""
-        from .config import AUTH
+        from ..config import AUTH
         
         # Obtener configuración de borrado lógico
         delete_column = AUTH['columna_borrado']
