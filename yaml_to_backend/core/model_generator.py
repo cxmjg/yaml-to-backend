@@ -45,10 +45,22 @@ class ModelGenerator:
                 code_lines.append(f"    {field_code}")
         
         # Agregar campos automáticos estándar
+        from ..config import AUTH
+        
+        # Obtener configuración de borrado lógico
+        delete_column = AUTH['columna_borrado']
+        delete_type = AUTH['borrado_logico']
+        
+        # Generar el campo de borrado lógico según la configuración
+        if delete_type == 'boolean':
+            delete_field = f"    {delete_column}: bool = Field(default=True)"
+        else:
+            delete_field = f"    {delete_column}: Optional[datetime] = Field(default=None)"
+        
         code_lines.extend([
             "    fecha_creacion: datetime = Field(default_factory=datetime.utcnow)",
             "    fecha_actualizacion: Optional[datetime] = Field(default=None)",
-            "    deleted_at: Optional[datetime] = Field(default=None)"
+            delete_field
         ])
         
         return "\n".join(code_lines)
