@@ -3,7 +3,8 @@ from typing import Dict, Any, List, Optional, Type
 import logging
 from datetime import datetime
 from ..security.auth import AuthManager
-from ..db.models import Usuario
+# Los modelos se generan dinámicamente, no se importan directamente
+# from ..db.models import Usuario
 from ..db.connection import get_db_session
 from .auth_routes import get_current_user_with_session
 from sqlalchemy import select

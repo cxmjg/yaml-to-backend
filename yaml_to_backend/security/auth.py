@@ -5,7 +5,8 @@ from passlib.context import CryptContext
 from fastapi import HTTPException, status, Depends
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 import logging
-from ..db.models import Usuario
+# Los modelos se generan dinámicamente, no se importan directamente
+# from ..db.models import Usuario
 
 logger = logging.getLogger(__name__)
 

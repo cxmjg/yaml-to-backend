@@ -4,7 +4,8 @@ from pydantic import BaseModel
 from typing import Optional
 import logging
 from ..security.auth import AuthManager
-from ..db.models import Usuario
+# Los modelos se generan dinámicamente, no se importan directamente
+# from ..db.models import Usuario
 from ..db.connection import get_db_session, get_db_manager
 from sqlalchemy.ext.asyncio import AsyncSession
 from datetime import datetime, timedelta
