@@ -1,5 +1,6 @@
 import asyncio
 import logging
+from typing import Any
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
@@ -128,11 +129,15 @@ class BackendGenerator:
     async def _create_initial_users(self):
         """Crea usuarios iniciales para modo instalación"""
         try:
-            # Los modelos se generan dinámicamente
-        # from .db.models import Usuario
-        Usuario = Any
+            # Obtener el modelo Usuario desde los modelos generados
             from .config import AUTH, INITIAL_USERS
             from sqlalchemy import select
+            
+            # Obtener el modelo Usuario desde los modelos generados
+            Usuario = self.generated_models.get('Usuario')
+            if not Usuario:
+                logger.warning("Modelo Usuario no encontrado, saltando creación de usuarios iniciales")
+                return
             
             # Obtener la columna de usuario desde la configuración
             user_column = AUTH['columna_usuario']
