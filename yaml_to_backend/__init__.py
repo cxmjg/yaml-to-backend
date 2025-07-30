@@ -15,7 +15,8 @@ from .config import update_config
 
 # API pública principal
 __all__ = [
-    "update_config"
+    "update_config",
+    "get_run_backend"
 ]
 
 # Función para importar run_backend cuando se necesite

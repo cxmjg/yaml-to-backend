@@ -44,25 +44,25 @@ class ModelGenerator:
             if field_code:
                 code_lines.append(f"    {field_code}")
         
-        # Agregar campos automáticos estándar
         from ..config import AUTH
-        
         # Obtener configuración de borrado lógico
         delete_column = AUTH['columna_borrado']
         delete_type = AUTH['borrado_logico']
-        
-        # Generar el campo de borrado lógico según la configuración
-        if delete_type == 'boolean':
-            delete_field = f"    {delete_column}: bool = Field(default=True)"
+        # Solo agregar campo de borrado lógico si NO existe en el YAML
+        if delete_column not in entity_data['campos']:
+            if delete_type == 'boolean':
+                delete_field = f"    {delete_column}: bool = Field(default=True)"
+            else:
+                delete_field = f"    {delete_column}: Optional[datetime] = Field(default=None)"
         else:
-            delete_field = f"    {delete_column}: Optional[datetime] = Field(default=None)"
-        
-        code_lines.extend([
-            "    fecha_creacion: datetime = Field(default_factory=datetime.utcnow)",
-            "    fecha_actualizacion: Optional[datetime] = Field(default=None)",
-            delete_field
-        ])
-        
+            delete_field = None
+        # Agregar campos automáticos estándar solo si no existen
+        if 'fecha_creacion' not in entity_data['campos']:
+            code_lines.append("    fecha_creacion: datetime = Field(default_factory=datetime.utcnow)")
+        if 'fecha_actualizacion' not in entity_data['campos']:
+            code_lines.append("    fecha_actualizacion: Optional[datetime] = Field(default=None)")
+        if delete_field:
+            code_lines.append(delete_field)
         return "\n".join(code_lines)
     
     def generate_swagger_documentation(self, entity_name: str, entity_data: Dict[str, Any]) -> Dict[str, Any]:
