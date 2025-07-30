@@ -5,6 +5,9 @@ from datetime import datetime
 from ..security.auth import AuthManager
 # Los modelos se generan dinámicamente, no se importan directamente
 # from ..db.models import Usuario
+
+# Tipo para el usuario (se generará dinámicamente)
+Usuario = Any
 from ..db.connection import get_db_session
 from .auth_routes import get_current_user_with_session
 from sqlalchemy import select

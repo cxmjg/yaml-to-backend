@@ -128,7 +128,9 @@ class BackendGenerator:
     async def _create_initial_users(self):
         """Crea usuarios iniciales para modo instalación"""
         try:
-            from .db.models import Usuario
+            # Los modelos se generan dinámicamente
+        # from .db.models import Usuario
+        Usuario = Any
             from .config import AUTH, INITIAL_USERS
             from sqlalchemy import select
             

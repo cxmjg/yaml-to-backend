@@ -8,6 +8,9 @@ import logging
 # Los modelos se generan dinámicamente, no se importan directamente
 # from ..db.models import Usuario
 
+# Tipo para el usuario (se generará dinámicamente)
+Usuario = Any
+
 logger = logging.getLogger(__name__)
 
 # Configuración de seguridad

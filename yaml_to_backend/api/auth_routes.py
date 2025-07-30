@@ -6,6 +6,9 @@ import logging
 from ..security.auth import AuthManager
 # Los modelos se generan dinámicamente, no se importan directamente
 # from ..db.models import Usuario
+
+# Tipo para el usuario (se generará dinámicamente)
+Usuario = Any
 from ..db.connection import get_db_session, get_db_manager
 from sqlalchemy.ext.asyncio import AsyncSession
 from datetime import datetime, timedelta
