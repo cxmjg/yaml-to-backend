@@ -54,7 +54,7 @@ class AuthManager:
         """Autentica un usuario con username y password"""
         try:
             from sqlalchemy import select
-            from .config import AUTH
+            from ..config import AUTH
             
             # Obtener la columna de usuario desde la configuración
             user_column = AUTH['columna_usuario']
@@ -99,7 +99,7 @@ class AuthManager:
             
         if session:
             from sqlalchemy import select
-            from .config import AUTH
+            from ..config import AUTH
             
             # Obtener la columna de usuario desde la configuración
             user_column = AUTH['columna_usuario']

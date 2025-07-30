@@ -12,10 +12,11 @@ class ModelGenerator:
     """Generador de modelos SQLModel desde entidades YAML"""
     
     def __init__(self):
+        """Inicializa el generador de modelos"""
         self.generated_models = {}
         self.pydantic_models = {}
-        self.models_file = "backend/db/generated_models.py"
-        self.base_models_file = "backend/db/models.py"
+        self.models_file = "yaml_to_backend/db/generated_models.py"
+        self.base_models_file = "yaml_to_backend/db/models.py"
         
         # Plantillas de descripción para endpoints
         self.endpoint_descriptions = {
@@ -382,7 +383,7 @@ class ModelGenerator:
         logger.info(f"Archivo de modelos generado: {self.models_file}")
     
     def write_base_models_file(self, entities: Dict[str, Any]):
-        """Escribe los modelos SQLModel base a backend/db/models.py"""
+        """Escribe los modelos SQLModel base a yaml_to_backend/db/models.py"""
         
         # Crear directorio si no existe
         os.makedirs(os.path.dirname(self.base_models_file), exist_ok=True)
