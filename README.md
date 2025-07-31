@@ -400,6 +400,8 @@ async with get_session() as session:
 
 ### Uso de Modelos Pydantic
 
+#### Acceso Directo a Modelos
+
 ```python
 from yaml_to_backend.db.generated_models import RolesCreate, RolesResponse, RolesUpdate
 
@@ -411,6 +413,93 @@ datos_actualizar = RolesUpdate(rol="admin")
 
 # Respuesta del modelo
 rol_respuesta = RolesResponse(id=1, rol="admin")
+```
+
+#### Diccionario Centralizado PYDANTIC_MODELS
+
+La librería proporciona un diccionario centralizado con todos los modelos Pydantic generados:
+
+```python
+from yaml_to_backend.db.generated_models import (
+    PYDANTIC_MODELS,
+    get_pydantic_model,
+    get_all_entities,
+    get_entity_actions,
+    validate_entity_action
+)
+
+# Acceso directo al diccionario
+usuario_create = PYDANTIC_MODELS["Usuario"]["create"]
+usuario_update = PYDANTIC_MODELS["Usuario"]["update"]
+usuario_response = PYDANTIC_MODELS["Usuario"]["response"]
+
+# Usar funciones utilitarias
+try:
+    # Obtener modelo de creación para Usuario
+    UsuarioCreate = get_pydantic_model("Usuario", "create")
+    
+    # Crear datos validados
+    datos_usuario = UsuarioCreate(
+        nombre="Juan Pérez",
+        email="juan@ejemplo.com",
+        password="password123",
+        rol="usuario"
+    )
+    
+    # Validar datos
+    datos_validados = datos_usuario.model_dump()
+    print(datos_validados)
+    
+except KeyError as e:
+    print(f"Error: {e}")
+
+# Listar todas las entidades disponibles
+print("Entidades disponibles:", get_all_entities())
+
+# Obtener acciones de una entidad
+actions = get_entity_actions("Usuario")  # ["create", "update", "response"]
+
+# Validar si existe un modelo
+exists = validate_entity_action("Usuario", "create")  # True
+```
+
+#### Casos de Uso Avanzados
+
+```python
+# Validación dinámica de datos
+def validate_data(entity_name: str, action: str, data: dict):
+    if validate_entity_action(entity_name, action):
+        model_class = get_pydantic_model(entity_name, action)
+        return model_class(**data)
+    else:
+        raise ValueError(f"Modelo no disponible: {entity_name}.{action}")
+
+# Generación de formularios dinámicos
+def get_form_fields(entity_name: str):
+    create_model = get_pydantic_model(entity_name, "create")
+    return create_model.model_fields
+
+# Serialización de respuestas
+def serialize_response(entity_name: str, data: dict):
+    response_model = get_pydantic_model(entity_name, "response")
+    return response_model(**data)
+
+# Ejemplo de uso
+try:
+    # Validar datos de entrada
+    datos_validados = validate_data("Usuario", "create", {
+        "nombre": "Ana García",
+        "email": "ana@ejemplo.com",
+        "password": "password123",
+        "rol": "usuario"
+    })
+    
+    # Obtener campos del formulario
+    campos = get_form_fields("Usuario")
+    print("Campos requeridos:", [campo for campo, info in campos.items() if info.is_required])
+    
+except Exception as e:
+    print(f"Error: {e}")
 ```
 
 ## Sistema de Permisos
