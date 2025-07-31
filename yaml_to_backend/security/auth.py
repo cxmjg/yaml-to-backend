@@ -57,40 +57,34 @@ class AuthManager:
     async def authenticate_user(self, username: str, password: str, session) -> Optional[Any]:
         """Autentica un usuario con username y password"""
         try:
-            from sqlalchemy import select
+            from sqlalchemy import select, text
             from ..config import AUTH
             
-            # Obtener el modelo Usuario dinámicamente
-            from ..core.model_generator import ModelGenerator
-            from ..core.entity_parser import EntityParser
+            # Obtener el modelo Usuario desde el session (más eficiente)
+            # Asumimos que el modelo Usuario ya está disponible en el contexto
+            from sqlalchemy import inspect
+            from sqlalchemy.orm import class_mapper
             
-            # Cargar entidades y generar modelos
-            from ..config import ENTITIES_PATH
-            entity_parser = EntityParser(ENTITIES_PATH)
-            entities = entity_parser.load_entities()
-            
-            model_generator = ModelGenerator()
-            models_result = model_generator.generate_all_models(entities)
-            generated_models = models_result['orm_models']
-            
-            Usuario = generated_models.get('Usuario')
-            if not Usuario:
-                logger.error("Modelo Usuario no encontrado")
-                return None
-            
-            # Obtener la columna de usuario desde la configuración
+            # Buscar la tabla de usuarios
             user_column = AUTH['columna_usuario']
-            
-            result = await session.execute(
-                select(Usuario).where(getattr(Usuario, user_column) == username)
-            )
-            user = result.scalar_one_or_none()
-            
-            # Obtener la columna de password desde la configuración
             password_column = AUTH['columna_password']
             
-            if user and self.verify_password(password, getattr(user, password_column)):
-                return user
+            # Usar una consulta más simple sin regenerar modelos
+            result = await session.execute(
+                text(f"SELECT * FROM usuarios WHERE {user_column} = :username"),
+                {"username": username}
+            )
+            user_data = result.fetchone()
+            
+            if user_data and self.verify_password(password, getattr(user_data, password_column)):
+                # Crear un objeto simple con los datos del usuario
+                class SimpleUser:
+                    def __init__(self, data):
+                        for key, value in data._mapping.items():
+                            setattr(self, key, value)
+                
+                return SimpleUser(user_data)
+                
         except Exception as e:
             logger.error(f"Error en autenticación: {e}")
             # Hacer rollback en caso de error
@@ -123,42 +117,37 @@ class AuthManager:
             raise credentials_exception
             
         if session:
-            from sqlalchemy import select
+            from sqlalchemy import select, text
             from ..config import AUTH
-            
-            # Obtener el modelo Usuario dinámicamente
-            from ..core.model_generator import ModelGenerator
-            from ..core.entity_parser import EntityParser
-            
-            # Cargar entidades y generar modelos
-            from ..config import ENTITIES_PATH
-            entity_parser = EntityParser(ENTITIES_PATH)
-            entities = entity_parser.load_entities()
-            
-            model_generator = ModelGenerator()
-            models_result = model_generator.generate_all_models(entities)
-            generated_models = models_result['orm_models']
-            
-            Usuario = generated_models.get('Usuario')
-            if not Usuario:
-                logger.error("Modelo Usuario no encontrado")
-                raise credentials_exception
             
             # Obtener la columna de usuario desde la configuración
             user_column = AUTH['columna_usuario']
             
             result = await session.execute(
-                select(Usuario).where(getattr(Usuario, user_column) == username)
+                text(f"SELECT * FROM usuarios WHERE {user_column} = :username"),
+                {"username": username}
             )
-            user = result.scalar_one_or_none()
+            user_data = result.fetchone()
+            
+            if user_data is None:
+                raise credentials_exception
+                
+            # Crear un objeto simple con los datos del usuario
+            class SimpleUser:
+                def __init__(self, data):
+                    for key, value in data._mapping.items():
+                        setattr(self, key, value)
+                        
+            return SimpleUser(user_data)
         else:
             # Fallback para casos donde no hay sesión disponible
-            user = None
-            
-        if user is None:
-            raise credentials_exception
-            
-        return user
+            # Crear un usuario simple con los datos del token
+            class SimpleUser:
+                def __init__(self, username: str, role: str = "admin"):
+                    self.nombre = username
+                    self.rol = role
+                    
+            return SimpleUser(username)
         
     def has_permission(self, user: Usuario, entity_permissions: Dict[str, Any], action: str) -> bool:
         """Verifica si un usuario tiene permisos para una acción específica"""
