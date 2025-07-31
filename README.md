@@ -788,6 +788,19 @@ MIT License - ver [LICENSE](LICENSE) para más detalles.
 
 ## Changelog
 
+### v0.1.12
+- Agregar soporte oficial para Python 3.13
+- Documentación completa del diccionario PYDANTIC_MODELS
+- Crear README_IA para contexto completo de IA
+- Mejoras en ejemplos de uso y casos de uso avanzados
+- Verificación de compatibilidad con última versión de Python
+
+### v0.1.11
+- Corrección de problemas de autenticación
+- Mejora en el manejo de eventos asíncronos
+- Actualización de dependencias
+- Mejoras en la documentación
+
 ### v0.1.10
 - Corrección de problemas de autenticación
 - Mejora en el manejo de eventos asíncronos

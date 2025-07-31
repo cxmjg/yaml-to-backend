@@ -7,7 +7,7 @@ Este README_IA está diseñado para proporcionar contexto completo a una IA sobr
 ## 📋 Información del Proyecto
 
 ### **Nombre**: YAML-to-Backend
-### **Versión Actual**: 0.1.10
+### **Versión Actual**: 0.1.12
 ### **Repositorio**: https://github.com/cxmjg/yaml-to-backend
 ### **Autor**: IPAS Team
 ### **Licencia**: MIT
