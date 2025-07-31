@@ -6,7 +6,7 @@ Una librería para generar automáticamente backends RESTful completos
 a partir de definiciones de entidades en archivos YAML.
 """
 
-__version__ = "0.1.9"
+__version__ = "0.1.10"
 __author__ = "Tecinter"
 __email__ = "info@tecinter.com.ar"
 

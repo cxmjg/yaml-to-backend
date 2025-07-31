@@ -24,12 +24,12 @@ DEFAULT_LOG = True
 # Configuración de autenticación
 DEFAULT_AUTH = {
     'tabla': 'usuarios',
-    'columna_usuario': 'username',
+    'columna_usuario': 'nombre',
     'columna_password': 'password',
     'superusuario': 'admin',
     'password_default': 'admin123',
-    'columna_borrado': 'deleted_at',
-    'borrado_logico': 'timestamp'
+    'columna_borrado': 'habilitado',
+    'borrado_logico': 'boolean'
 }
 
 # Configuración JWT

@@ -28,7 +28,7 @@ class TokenData(BaseModel):
     username: Optional[str] = None
 
 class LoginRequest(BaseModel):
-    username: str
+    username: str  # Mantener username para compatibilidad con OAuth2
     password: str
 
 @router.post("/login", response_model=Token)
@@ -41,6 +41,7 @@ async def login(login_data: LoginRequest, session: AsyncSession = Depends(get_db
     )
     
     try:
+        # El campo username del OAuth2 se mapea a la columna configurada
         user = await auth_manager.authenticate_user(login_data.username, login_data.password, session)
         
         if not user:

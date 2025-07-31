@@ -54,11 +54,29 @@ class AuthManager:
         except JWTError:
             return None
             
-    async def authenticate_user(self, username: str, password: str, session) -> Optional[Usuario]:
+    async def authenticate_user(self, username: str, password: str, session) -> Optional[Any]:
         """Autentica un usuario con username y password"""
         try:
             from sqlalchemy import select
             from ..config import AUTH
+            
+            # Obtener el modelo Usuario dinámicamente
+            from ..core.model_generator import ModelGenerator
+            from ..core.entity_parser import EntityParser
+            
+            # Cargar entidades y generar modelos
+            from ..config import ENTITIES_PATH
+            entity_parser = EntityParser(ENTITIES_PATH)
+            entities = entity_parser.load_entities()
+            
+            model_generator = ModelGenerator()
+            models_result = model_generator.generate_all_models(entities)
+            generated_models = models_result['orm_models']
+            
+            Usuario = generated_models.get('Usuario')
+            if not Usuario:
+                logger.error("Modelo Usuario no encontrado")
+                return None
             
             # Obtener la columna de usuario desde la configuración
             user_column = AUTH['columna_usuario']
@@ -68,7 +86,10 @@ class AuthManager:
             )
             user = result.scalar_one_or_none()
             
-            if user and self.verify_password(password, user.password):
+            # Obtener la columna de password desde la configuración
+            password_column = AUTH['columna_password']
+            
+            if user and self.verify_password(password, getattr(user, password_column)):
                 return user
         except Exception as e:
             logger.error(f"Error en autenticación: {e}")
@@ -81,7 +102,7 @@ class AuthManager:
             
         return None
         
-    async def get_current_user(self, credentials: HTTPAuthorizationCredentials = Depends(security), session = None) -> Usuario:
+    async def get_current_user(self, credentials: HTTPAuthorizationCredentials = Depends(security), session = None) -> Any:
         """Obtiene el usuario actual desde el token JWT"""
         credentials_exception = HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -104,6 +125,24 @@ class AuthManager:
         if session:
             from sqlalchemy import select
             from ..config import AUTH
+            
+            # Obtener el modelo Usuario dinámicamente
+            from ..core.model_generator import ModelGenerator
+            from ..core.entity_parser import EntityParser
+            
+            # Cargar entidades y generar modelos
+            from ..config import ENTITIES_PATH
+            entity_parser = EntityParser(ENTITIES_PATH)
+            entities = entity_parser.load_entities()
+            
+            model_generator = ModelGenerator()
+            models_result = model_generator.generate_all_models(entities)
+            generated_models = models_result['orm_models']
+            
+            Usuario = generated_models.get('Usuario')
+            if not Usuario:
+                logger.error("Modelo Usuario no encontrado")
+                raise credentials_exception
             
             # Obtener la columna de usuario desde la configuración
             user_column = AUTH['columna_usuario']
