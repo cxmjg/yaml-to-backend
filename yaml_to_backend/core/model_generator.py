@@ -201,9 +201,12 @@ class ModelGenerator:
         # Campos para crear (excluir ID y campos automáticos)
         for field_name, field_config in entity_data['campos'].items():
             if not field_config.get('pk'):
-                # Excluir campos que se generan automáticamente
-                if field_name not in [delete_column, 'fecha_creacion', 'fecha_actualizacion']:
-                    field_code = self._get_pydantic_field_code(field_name, field_config, required=True)
+                # Incluir campos requeridos, incluso si son campos automáticos
+                # Solo excluir campos que realmente se generan automáticamente (como fecha_actualizacion)
+                if field_name not in ['fecha_actualizacion']:
+                    # Si el campo está marcado como requerido en YAML, incluirlo
+                    is_required = field_config.get('required', True)
+                    field_code = self._get_pydantic_field_code(field_name, field_config, required=is_required)
                     code_lines.append(f"    {field_code}")
         
         code_lines.extend([
@@ -216,7 +219,7 @@ class ModelGenerator:
         for field_name, field_config in entity_data['campos'].items():
             if (not field_config.get('pk') and 
                 not field_config.get('fk') and 
-                field_name not in [delete_column, 'fecha_creacion', 'fecha_actualizacion']):
+                field_name not in ['fecha_actualizacion']):
                 # Para password, hacer opcional en Update
                 if field_name == 'password':
                     code_lines.append(f"    {field_name}: Optional[str]")
@@ -264,7 +267,7 @@ class ModelGenerator:
         python_type = type_mapping.get(field_type, 'str')
         
         # Campos automáticos siempre son opcionales
-        if field_name in [delete_column, 'fecha_creacion', 'fecha_actualizacion']:
+        if field_name in [delete_column, 'fecha_actualizacion']:
             python_type = f"Optional[{python_type}]"
         elif not required:
             python_type = f"Optional[{python_type}]"

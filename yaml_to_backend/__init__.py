@@ -16,8 +16,12 @@ from .config import update_config
 # API pública principal
 __all__ = [
     "update_config",
+    "BackendGenerator",
     "get_run_backend"
 ]
+
+# Importar BackendGenerator
+from .app import BackendGenerator
 
 # Función para importar run_backend cuando se necesite
 def get_run_backend():

@@ -1,7 +1,7 @@
 import asyncio
 import logging
 from typing import Any
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 
@@ -43,9 +43,11 @@ class BackendGenerator:
         )
         
         # Inicializar componentes
-        self.entity_parser = EntityParser(ENTITIES_PATH)
+        # EntityParser se inicializará después de aplicar configuración personalizada
+        self.entity_parser = None
         self.model_generator = ModelGenerator()
-        self.db_manager = DatabaseManager(DATABASE_URL)
+        # DatabaseManager se inicializará después de aplicar configuración personalizada
+        self.db_manager = None
         self.auth_manager = AuthManager(
             secret_key=JWT_SECRET_KEY,
             algorithm=JWT_ALGORITHM,
@@ -61,6 +63,16 @@ class BackendGenerator:
         """Inicializa el backend completo"""
         try:
             logger.info("Iniciando generación del backend...")
+            
+            # 0. Inicializar DatabaseManager con configuración actualizada
+            from .config import DATABASE_URL
+            self.db_manager = DatabaseManager(DATABASE_URL)
+            logger.info(f"DatabaseManager inicializado con URL: {DATABASE_URL}")
+            
+            # 0.5. Inicializar EntityParser con configuración actualizada
+            from .config import ENTITIES_PATH
+            self.entity_parser = EntityParser(ENTITIES_PATH)
+            logger.info(f"EntityParser inicializado con ruta: {ENTITIES_PATH}")
             
             # 1. Cargar entidades desde YAML
             logger.info("Cargando entidades desde archivos YAML...")
@@ -112,7 +124,15 @@ class BackendGenerator:
             # 5. Registrar rutas de autenticación
             self.app.include_router(auth_router)
             
-            # 6. Endpoint de salud
+            # 6. Registrar rutas personalizadas
+            from .config import CUSTOM_ROUTES
+            if CUSTOM_ROUTES:
+                logger.info("Registrando rutas personalizadas...")
+                for route in CUSTOM_ROUTES:
+                    self._register_custom_route(route)
+                    logger.info(f"Ruta personalizada registrada: {route['metodo']} {route['path']}")
+            
+            # 7. Endpoint de salud
             @self.app.get("/")
             async def health_check():
                 return {
@@ -125,6 +145,166 @@ class BackendGenerator:
         except Exception as e:
             logger.error(f"Error durante la inicialización: {e}")
             raise
+    
+    def _register_custom_route(self, route):
+        """Registra una ruta personalizada"""
+        path = route['path']
+        method = route['metodo'].upper()
+        function = route['funcion']
+        permissions = route.get('permisos', [])
+        
+        # Crear endpoint con permisos
+        if permissions:
+            endpoint_func = self._create_protected_endpoint(function, permissions)
+        else:
+            endpoint_func = self._create_public_endpoint(function)
+        
+        # Registrar la ruta según el método HTTP
+        if method == 'GET':
+            self.app.get(path)(endpoint_func)
+        elif method == 'POST':
+            self.app.post(path)(endpoint_func)
+        elif method == 'PUT':
+            self.app.put(path)(endpoint_func)
+        elif method == 'DELETE':
+            self.app.delete(path)(endpoint_func)
+    
+    def _create_public_endpoint(self, original_func):
+        """Crea un endpoint público"""
+        import inspect
+        
+        async def endpoint_wrapper(request: Request):
+            try:
+                logger.info(f"Endpoint público llamado: {original_func.__name__}")
+                
+                # Verificar si la función espera parámetros
+                sig = inspect.signature(original_func)
+                if len(sig.parameters) == 0:
+                    # Función sin parámetros
+                    result = original_func()
+                else:
+                    # Función con parámetros - extraer parámetros de la request
+                    try:
+                        # Obtener parámetros de la URL path
+                        path_params = request.path_params
+                        
+                        # Obtener parámetros del body si es POST/PUT
+                        body_params = {}
+                        if request.method in ['POST', 'PUT']:
+                            try:
+                                body_params = await request.json()
+                            except:
+                                pass
+                        
+                        # Combinar parámetros
+                        func_params = {}
+                        for param_name, param_info in sig.parameters.items():
+                            if param_name in path_params:
+                                # Parámetro de la URL
+                                func_params[param_name] = path_params[param_name]
+                            elif param_name in body_params:
+                                # Parámetro del body
+                                func_params[param_name] = body_params[param_name]
+                            elif param_name == 'user_data' and 'user_data' in body_params:
+                                # Caso especial para user_data
+                                func_params[param_name] = body_params['user_data']
+                            elif param_name == 'x' and 'x' in body_params:
+                                # Caso especial para x
+                                func_params[param_name] = body_params['x']
+                            elif param_name == 'y' and 'y' in body_params:
+                                # Caso especial para y
+                                func_params[param_name] = body_params['y']
+                        
+                        # Ejecutar función con parámetros
+                        result = original_func(**func_params)
+                    except Exception as e:
+                        logger.error(f"Error procesando parámetros para {original_func.__name__}: {e}")
+                        result = {"error": f"Error procesando parámetros: {str(e)}"}
+                
+                logger.info(f"Endpoint público {original_func.__name__} ejecutado exitosamente")
+                return result
+            except Exception as e:
+                logger.error(f"Error en endpoint público {original_func.__name__}: {e}")
+                return {"error": str(e)}
+        
+        return endpoint_wrapper
+    
+    def _create_protected_endpoint(self, original_func, permissions):
+        """Crea un endpoint protegido con permisos"""
+        import inspect
+        from fastapi import Request, HTTPException, Depends
+        from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+        
+        security = HTTPBearer()
+        
+        async def endpoint_wrapper(request: Request, credentials: HTTPAuthorizationCredentials = Depends(security)):
+            try:
+                logger.info(f"Endpoint protegido llamado: {original_func.__name__} por usuario con permisos: {permissions}")
+                
+                # Obtener usuario actual usando el AuthManager
+                current_user = await self.auth_manager.get_current_user(credentials)
+                
+                # Verificar permisos
+                user_role = getattr(current_user, 'rol', '')
+                if user_role not in permissions:
+                    logger.warning(f"Usuario {getattr(current_user, 'nombre', 'desconocido')} sin permisos para {original_func.__name__}")
+                    raise HTTPException(status_code=403, detail="Permisos insuficientes")
+                
+                logger.info(f"Usuario autenticado: {getattr(current_user, 'nombre', 'desconocido')}")
+                
+                # Verificar si la función espera parámetros
+                sig = inspect.signature(original_func)
+                if len(sig.parameters) == 0:
+                    # Función sin parámetros
+                    result = original_func()
+                else:
+                    # Función con parámetros - extraer parámetros de la request
+                    try:
+                        # Obtener parámetros de la URL path
+                        path_params = request.path_params
+                        
+                        # Obtener parámetros del body si es POST/PUT
+                        body_params = {}
+                        if request.method in ['POST', 'PUT']:
+                            try:
+                                body_params = await request.json()
+                            except:
+                                pass
+                        
+                        # Combinar parámetros
+                        func_params = {}
+                        for param_name, param_info in sig.parameters.items():
+                            if param_name in path_params:
+                                # Parámetro de la URL
+                                func_params[param_name] = path_params[param_name]
+                            elif param_name in body_params:
+                                # Parámetro del body
+                                func_params[param_name] = body_params[param_name]
+                            elif param_name == 'user_data' and 'user_data' in body_params:
+                                # Caso especial para user_data
+                                func_params[param_name] = body_params['user_data']
+                            elif param_name == 'x' and 'x' in body_params:
+                                # Caso especial para x
+                                func_params[param_name] = body_params['x']
+                            elif param_name == 'y' and 'y' in body_params:
+                                # Caso especial para y
+                                func_params[param_name] = body_params['y']
+                        
+                        # Ejecutar función con parámetros
+                        result = original_func(**func_params)
+                    except Exception as e:
+                        logger.error(f"Error procesando parámetros para {original_func.__name__}: {e}")
+                        result = {"error": f"Error procesando parámetros: {str(e)}"}
+                
+                logger.info(f"Endpoint protegido {original_func.__name__} ejecutado exitosamente por {user_role}")
+                return result
+            except HTTPException:
+                raise
+            except Exception as e:
+                logger.error(f"Error en endpoint protegido {original_func.__name__}: {e}")
+                return {"error": str(e)}
+        
+        return endpoint_wrapper
     
     async def _create_initial_users(self):
         """Crea usuarios iniciales para modo instalación"""
@@ -180,6 +360,9 @@ class BackendGenerator:
     
     def run(self):
         """Ejecuta el servidor"""
+        # Inicializar el backend antes de ejecutar el servidor
+        asyncio.run(self.initialize())
+        
         uvicorn.run(
             self.app,
             host="0.0.0.0",

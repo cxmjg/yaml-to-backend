@@ -51,6 +51,9 @@ DEFAULT_INITIAL_USERS = [
     }
 ]
 
+# Configuración de rutas personalizadas
+DEFAULT_CUSTOM_ROUTES = []
+
 # =============================================================================
 # VARIABLES DE CONFIGURACIÓN (se pueden sobrescribir)
 # =============================================================================
@@ -85,6 +88,9 @@ DATABASE_URL = f"mysql+asyncmy://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB
 # Configuración de usuarios iniciales para modo instalación
 INITIAL_USERS = DEFAULT_INITIAL_USERS.copy()
 
+# Configuración de rutas personalizadas
+CUSTOM_ROUTES = DEFAULT_CUSTOM_ROUTES.copy()
+
 # =============================================================================
 # FUNCIÓN PARA SOBRESCRIBIR CONFIGURACIÓN
 # =============================================================================
@@ -106,7 +112,7 @@ def update_config(**kwargs):
     """
     global ENTITIES_PATH, DB_HOST, DB_PORT, DB_USER, DB_PASSWORD, DB_NAME
     global DEBUG, PORT, INSTALL, LOG, AUTH, JWT_SECRET_KEY, JWT_ALGORITHM
-    global JWT_ACCESS_TOKEN_EXPIRE_MINUTES, DATABASE_URL, INITIAL_USERS
+    global JWT_ACCESS_TOKEN_EXPIRE_MINUTES, DATABASE_URL, INITIAL_USERS, CUSTOM_ROUTES
     
     # Actualizar variables individuales
     if 'ENTITIES_PATH' in kwargs:
@@ -153,6 +159,9 @@ def update_config(**kwargs):
     
     if 'INITIAL_USERS' in kwargs:
         INITIAL_USERS = kwargs['INITIAL_USERS'].copy()
+    
+    if 'CUSTOM_ROUTES' in kwargs:
+        CUSTOM_ROUTES = kwargs['CUSTOM_ROUTES'].copy()
     
     # Recalcular DATABASE_URL si se modificó alguna configuración de BD
     if any(key in kwargs for key in ['DB_HOST', 'DB_PORT', 'DB_USER', 'DB_PASSWORD', 'DB_NAME']):

@@ -29,7 +29,7 @@ class PerfilesCreate(BaseModel):
     nombre: str
     apellido: str
     email: str
-    imagen: str
+    imagen: Optional[str]
     usuario: int
 
 class PerfilesUpdate(BaseModel):
@@ -51,12 +51,12 @@ class PerfilesResponse(BaseModel):
 class ContenedoresCreate(BaseModel):
     """Modelo para crear Contenedores - Gestión de contenedores de usuarios"""
     nombre: str
-    http: int
-    https: int
-    puertos: str
-    redes: str
-    variables: str
-    volumenes: str
+    http: Optional[int]
+    https: Optional[int]
+    puertos: Optional[str]
+    redes: Optional[str]
+    variables: Optional[str]
+    volumenes: Optional[str]
     imagen: int
     usuario: int
 
@@ -87,8 +87,8 @@ class ImagenesCreate(BaseModel):
     """Modelo para crear Imagenes - Gestión de imágenes de contenedores"""
     ubicacion: str
     nombre: str
-    comandos: str
-    logo: str
+    comandos: Optional[str]
+    logo: Optional[str]
     sistemaOperativo: int
 
 class ImagenesUpdate(BaseModel):
@@ -128,7 +128,7 @@ class AplicacionesResponse(BaseModel):
 class SistemasOperativosCreate(BaseModel):
     """Modelo para crear SistemasOperativos - Gestión de sistemas operativos disponibles"""
     nombre: str
-    logo: str
+    logo: Optional[str]
 
 class SistemasOperativosUpdate(BaseModel):
     """Modelo para actualizar SistemasOperativos"""
@@ -160,6 +160,7 @@ class UsuarioCreate(BaseModel):
     email: str
     password: str
     rol: str
+    habilitado: Optional[bool]
 
 class UsuarioUpdate(BaseModel):
     """Modelo para actualizar Usuario"""
@@ -167,6 +168,7 @@ class UsuarioUpdate(BaseModel):
     email: Optional[str]
     password: Optional[str]
     rol: Optional[str]
+    habilitado: Optional[bool]
 
 class UsuarioResponse(BaseModel):
     """Modelo para respuesta de Usuario"""
@@ -180,15 +182,17 @@ class UsuarioResponse(BaseModel):
 class TareaCreate(BaseModel):
     """Modelo para crear Tarea - Gestión de tareas"""
     titulo: str
-    descripcion: str
+    descripcion: Optional[str]
     completada: bool
     usuario_id: int
+    fecha_creacion: datetime
 
 class TareaUpdate(BaseModel):
     """Modelo para actualizar Tarea"""
     titulo: Optional[str]
     descripcion: Optional[str]
     completada: Optional[bool]
+    fecha_creacion: Optional[datetime]
 
 class TareaResponse(BaseModel):
     """Modelo para respuesta de Tarea"""
@@ -197,7 +201,7 @@ class TareaResponse(BaseModel):
     descripcion: str
     completada: bool
     usuario_id: int
-    fecha_creacion: Optional[datetime]
+    fecha_creacion: datetime
 
 
 
