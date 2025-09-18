@@ -384,5 +384,9 @@ def run_backend():
     # Ejecutar la inicialización
     backend = asyncio.run(main())
     
-    # Ejecutar el servidor
-    backend.run() 
+    # Ejecutar el servidor usando la configuración del puerto
+    import uvicorn
+    from .config import PORT
+    
+    print(f"🚀 Iniciando servidor en puerto {PORT}...")
+    uvicorn.run(backend.app, host="0.0.0.0", port=PORT) 
