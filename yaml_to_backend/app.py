@@ -5,7 +5,7 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 
-from .config import *
+from .config import update_config
 from .core.entity_parser import EntityParser
 from .core.model_generator import ModelGenerator
 from .db.connection import DatabaseManager, set_db_manager
@@ -14,6 +14,7 @@ from .api.crud_generator import CRUDGenerator
 from .api.auth_routes import router as auth_router
 
 # Configurar logging
+from .config import LOG, DEBUG
 if LOG:
     logging.basicConfig(
         level=logging.INFO if DEBUG else logging.WARNING,
@@ -26,6 +27,7 @@ class BackendGenerator:
     """Generador principal del backend"""
     
     def __init__(self):
+        from .config import DEBUG
         self.app = FastAPI(
             title="Backend Generador",
             description="Backend generado automáticamente desde archivos YAML",
@@ -48,6 +50,7 @@ class BackendGenerator:
         self.model_generator = ModelGenerator()
         # DatabaseManager se inicializará después de aplicar configuración personalizada
         self.db_manager = None
+        from .config import JWT_SECRET_KEY, JWT_ALGORITHM, JWT_ACCESS_TOKEN_EXPIRE_MINUTES
         self.auth_manager = AuthManager(
             secret_key=JWT_SECRET_KEY,
             algorithm=JWT_ALGORITHM,
@@ -92,12 +95,14 @@ class BackendGenerator:
             logger.info("Inicializando base de datos...")
             all_models = list(self.generated_models.values())
             
+            from .config import INSTALL
             if INSTALL:
                 logger.info("Modo instalación activado - reiniciando base de datos...")
                 await self.db_manager.init_db(all_models)
                 await self.db_manager.reset_db()
                 await self._create_initial_users()
             else:
+                logger.info("Modo normal - inicializando base de datos sin reiniciar...")
                 await self.db_manager.init_db(all_models)
             
             # Establecer DatabaseManager global
@@ -363,6 +368,7 @@ class BackendGenerator:
         # Inicializar el backend antes de ejecutar el servidor
         asyncio.run(self.initialize())
         
+        from .config import PORT, DEBUG
         uvicorn.run(
             self.app,
             host="0.0.0.0",
